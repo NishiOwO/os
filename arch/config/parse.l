@@ -2,8 +2,12 @@
 
 %{
 #include "y.tab.h"
+#include "parse.h"
 
+#include <stdlib.h>
 #include <stdio.h>
+
+char* yytmpbuf;
 
 int yywrap(void){
 	return 1;
@@ -16,6 +20,41 @@ int yyerror(const char* str){
 }
 %}
 
+%x STR
+
 %%
+
+\" {
+	BEGIN(STR);
+	yytmpbuf = malloc(1);
+	yytmpbuf[0] = 0;
+}
+
+<STR>[^\\"]* {
+	char* old = yytmpbuf;
+	yytmpbuf = malloc(strlen(old) + strlen(yytext) + 1);
+	strcpy(yytmpbuf, old);
+	strcpy(yytmpbuf + strlen(old), yytext);
+	free(old);
+}
+
+<STR>\\. {
+	char* old = yytmpbuf;
+	yytmpbuf = malloc(strlen(old) + 2);
+	strcpy(yytmpbuf, old);
+	strcpy(yytmpbuf + strlen(old), yytext + 1);
+	free(old);
+}
+
+<STR>\" {
+	BEGIN(0);
+	return STRING;
+}
+
+([ \t]*#[^\n]+) ;
+
+([ \t]*\n[ \t]*) {
+	return NEWLINE;
+}
 
 %%
