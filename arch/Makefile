@@ -7,8 +7,9 @@ KERNEL = GENERIC
 
 all: ./config/config
 
-kernel: ./config/config
-	./config/config $(ARCH)/$(KERNEL)
+kernel: ./config/config $(ARCH)/conf/$(KERNEL)
+	-rm -rf ../build
+	./config/config $(ARCH)/conf/$(KERNEL)
 	$(MAKE) -C ../build
 
 ./config/config::

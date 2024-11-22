@@ -15,7 +15,10 @@ int have_program(const char* str);
 int yylex(void);
 int yyerror(const char*);
 void set_cc(const char* prefix, const char* name);
+void set_as(const char* prefix, const char* name);
+void set_ld(const char* prefix, const char* name);
 void add_cflags(const char* str);
+void add_asflags(const char* str);
 void add_ldflags(const char* str);
 
 #define DEFPATH "/bin:/sbin:/usr/bin:/usr/sbin"
@@ -51,6 +54,8 @@ option		:	OPTION SPACES STRING {
 
 target		:	TARGET SPACES STRING {
 	struct utsname uts;
+	char str[512];
+	str[0] = 0;
 	uname(&uts);
 	printf("target: %s\n", $<scalar.value>3);
 	printf("host: %s\n", uts.machine);
@@ -59,18 +64,33 @@ target		:	TARGET SPACES STRING {
 	if(strcmp($<scalar.value>3, uts.machine) == 0){
 		set_cc(NULL, "cc");
 		set_cc(NULL, "gcc");
+		set_as(NULL, "as");
+		set_as(NULL, "gas");
+		set_ld(NULL, "ld");
+		set_ld(NULL, "gld");
 		printf("target == host, using cc/gcc\n");
 	}else if((strcmp("amd64", uts.machine) == 0 || strcmp("x86_64", uts.machine) == 0) && strcmp("i386", $<scalar.value>3) == 0){
 		add_cflags("-m32");
-		add_ldflags("-m32");
+		add_asflags("--32");
 		set_cc(NULL, "cc");
 		set_cc(NULL, "gcc");
+		set_as(NULL, "as");
+		set_as(NULL, "gas");
+		set_ld(NULL, "ld");
+		set_ld(NULL, "gld");
 		printf("target == 32 bit version of host, using cc/gcc with -m32\n");
 	}else{
 		set_cc($<scalar.value>3, "cc");
 		set_cc($<scalar.value>3, "gcc");
+		set_as($<scalar.value>3, "as");
+		set_as($<scalar.value>3, "gas");
+		set_ld($<scalar.value>3, "ld");
+		set_ld($<scalar.value>3, "gld");
 		printf("using cross compiler\n");
 	}
+	strcat(str, "-melf_");
+	strcat(str, $<scalar.value>3);
+	add_ldflags(str);
 };
 
 %%
@@ -118,6 +138,36 @@ void set_cc(const char* prefix, const char* name){
 	}
 }
 
+void set_as(const char* prefix, const char* name){
+	char str[512];
+	str[0] = 0;
+	if(prefix != NULL){
+		strcat(str, prefix);
+		strcat(str, "-none-elf-");
+	}
+	strcat(str, name);
+	if(have_program(str)){
+		if(as != NULL) free(as);
+		as = malloc(strlen(str) + 1);
+		strcpy(as, str);
+	}
+}
+
+void set_ld(const char* prefix, const char* name){
+	char str[512];
+	str[0] = 0;
+	if(prefix != NULL){
+		strcat(str, prefix);
+		strcat(str, "-none-elf-");
+	}
+	strcat(str, name);
+	if(have_program(str)){
+		if(ld != NULL) free(ld);
+		ld = malloc(strlen(str) + 1);
+		strcpy(ld, str);
+	}
+}
+
 void add_cflags(const char* str){
 	if(cflags == NULL){
 		cflags = malloc(strlen(str) + 1);
@@ -129,6 +179,20 @@ void add_cflags(const char* str){
 		strcpy(new + strlen(cflags) + 1, str);
 		free(cflags);
 		cflags = new;
+	}
+}
+
+void add_asflags(const char* str){
+	if(asflags == NULL){
+		asflags = malloc(strlen(str) + 1);
+		strcpy(asflags, str);
+	}else{
+		char* new = malloc(strlen(asflags) + 1 + strlen(str) + 1);
+		strcpy(new, asflags);
+		new[strlen(asflags)] = ' ';
+		strcpy(new + strlen(asflags) + 1, str);
+		free(asflags);
+		asflags = new;
 	}
 }
 

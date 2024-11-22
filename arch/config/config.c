@@ -52,8 +52,19 @@ int main(int argc, char** argv){
 		fprintf(stderr, "failed to probe C compiler\n");
 		return 1;
 	}
+	if(as == NULL){
+		fprintf(stderr, "failed to probe assembler\n");
+		return 1;
+	}
+	if(ld == NULL){
+		fprintf(stderr, "failed to probe linker\n");
+		return 1;
+	}
 	printf("C compiler: %s\n", cc);
+	printf("assembler: %s\n", as);
+	printf("linker: %s\n", ld);
 	printf("CFLAGS: %s\n", cflags == NULL ? "" : cflags);
+	printf("ASFLAGS: %s\n", asflags == NULL ? "" : asflags);
 	printf("LDFLAGS: %s\n", ldflags == NULL ? "" : ldflags);
 	printf("root directory: %s\n", buffer);
 	mkdir("build", 0755);
@@ -64,7 +75,10 @@ int main(int argc, char** argv){
 
 	CREATE("config.mk");
 	fprintf(f, "CC = %s\n", cc);
+	fprintf(f, "AS = %s\n", as);
+	fprintf(f, "LD = %s\n", ld);
 	fprintf(f, "CFLAGS = %s\n", cflags == NULL ? "" : cflags);
+	fprintf(f, "ASFLAGS = %s\n", asflags == NULL ? "" : asflags);
 	fprintf(f, "LDFLAGS = %s\n", ldflags == NULL ? "" : ldflags);
 	fclose(f);
 
