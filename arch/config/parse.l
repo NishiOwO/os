@@ -4,6 +4,7 @@
 #include "y.tab.h"
 #include "parse.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -48,6 +49,7 @@ int yyerror(const char* str){
 
 <STR>\" {
 	BEGIN(0);
+	yylval.scalar.value = yytmpbuf;
 	return STRING;
 }
 
@@ -55,6 +57,28 @@ int yyerror(const char* str){
 
 ([ \t]*\n[ \t]*) {
 	return NEWLINE;
+}
+
+option {
+	return OPTION;
+}
+
+target {
+	return TARGET;
+}
+
+([ \t]+) {
+	return SPACES;
+}
+
+([A-Za-z0-9_]+) {
+	yylval.scalar.value = malloc(strlen(yytext) + 1);
+	strcpy(yylval.scalar.value, yytext);
+	return STRING;
+}
+
+. {
+	return yytext[0];
 }
 
 %%

@@ -1,6 +1,6 @@
 # $Id$
 
-ARCH = `uname -m`
+ARCH = i386
 KERNEL = GENERIC
 
 .PHONY: all kernel clean ./config/config
