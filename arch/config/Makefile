@@ -7,7 +7,7 @@ LEX = lex
 LFLAGS =
 
 CC = cc
-CFLAGS =
+CFLAGS = -D_DEFAULT_SOURCE
 LDFLAGS =
 LIBS =
 
