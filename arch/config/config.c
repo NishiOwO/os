@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <limits.h>
 #include <sys/stat.h>
 
@@ -25,19 +26,56 @@ int main(int argc, char** argv){
 	FILE* f;
 	char* sources[256];
 	int count = 0;
+	char located[PATH_MAX + 1];
+	char old[PATH_MAX + 1];
+	int i;
+	DIR* dir;
 	if(argc != 2){
 		fprintf(stderr, "usage: %s file\n", argv[0]);
 		return 1;
+	}
+	strcpy(located, argv[1]);
+	for(i = strlen(located) - 1; i >= 0; i--){
+		if(located[i] == '/'){
+			break;
+		}
+		located[i] = 0;
+	}
+	if(strlen(located) == 0){
+		strcpy(located, "./");
 	}
 	yyin = fopen(argv[1], "r");
 	if(yyin == NULL){
 		fprintf(stderr, "could not open the file\n");
 		return 1;
 	}
+	printf("config located in: %s\n", located);
 	if(yyparse()){
 		return 1;
 	}
 	fclose(yyin);
+	getcwd(old, PATH_MAX);
+
+	chdir(located);
+	chdir("..");
+
+	dir = opendir(".");
+	if(dir != NULL){
+		struct dirent* d;
+		while((d = readdir(dir)) != NULL){
+			if(strcmp(d->d_name, "..") == 0 || strcmp(d->d_name, ".") == 0) continue;
+			if(strlen(d->d_name) < 2) continue;
+			if((d->d_name[strlen(d->d_name) - 1] == 's' || d->d_name[strlen(d->d_name) - 1] == 'c' || d->d_name[strlen(d->d_name) - 1] == 'h') && d->d_name[strlen(d->d_name) - 2] == '.'){
+				char* path = malloc(strlen(d->d_name) + 1);
+				strcpy(path, d->d_name);
+				sources[count++] = path;
+			}
+		}
+		closedir(dir);
+	}
+	getcwd(located, PATH_MAX);
+
+	chdir(old);
 	while(1){
 		getcwd(buffer, PATH_MAX);
 		if(strcmp(buffer, "/") == 0){
@@ -75,6 +113,7 @@ int main(int argc, char** argv){
 		fprintf(stderr, "chdir failure\n");
 		return 1;
 	}
+	mkdir("arch", 0755);
 
 	CREATE("config.mk");
 	fprintf(f, "CC = %s\n", cc);
@@ -87,6 +126,32 @@ int main(int argc, char** argv){
 
 	CREATE("Makefile");
 	fclose(f);
+
+	if(chdir("arch")){
+		fprintf(stderr, "chdir failure\n");
+		return 1;
+	}
+	for(i = 0; i < count; i++){
+		char src[PATH_MAX + 1];
+		FILE* fin;
+		FILE* fout;
+		char* txtbuf;
+		struct stat s;
+		sprintf(src, "%s/%s", located, sources[i]);
+		stat(src, &s);
+		fin = fopen(src, "r");
+		fout = fopen(sources[i], "w");
+		txtbuf = malloc(s.st_size);
+		printf("copying %s\n", sources[i]);
+		fread(txtbuf, 1, s.st_size, fin);
+		fwrite(txtbuf, 1, s.st_size, fout);
+		fclose(fout);
+		fclose(fin);
+	}
+	if(chdir("..")){
+		fprintf(stderr, "chdir failure\n");
+		return 1;
+	}
 
 	printf("run `make' in `%s/build' to build the kernel\n", buffer);
 	return 0;
