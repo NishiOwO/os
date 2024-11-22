@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
 #include <sys/stat.h>
@@ -22,6 +23,8 @@ extern int yyparse(void);
 int main(int argc, char** argv){
 	char buffer[PATH_MAX + 1 + 6 + 5 + 1];
 	FILE* f;
+	char* sources[256];
+	int count = 0;
 	if(argc != 2){
 		fprintf(stderr, "usage: %s file\n", argv[0]);
 		return 1;
