@@ -9,6 +9,7 @@ all: ./config/config
 
 kernel: ./config/config
 	./config/config $(ARCH)/$(KERNEL)
+	$(MAKE) -C ../build
 
 ./config/config::
 	$(MAKE) -C ./config
