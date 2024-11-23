@@ -58,6 +58,10 @@ target		:	TARGET SPACES STRING {
 	printf("host: %s\n", uts.machine);
 	add_cflags("-nostdinc");
 	add_ldflags("-nostdlib");
+	strcat(str, "TARGET=\\\"");
+	strcat(str, $<scalar.value>3);
+	strcat(str, "\\\"");
+	add_defines(str);
 	if(strcmp($<scalar.value>3, uts.machine) == 0){
 		set_cpp(NULL, "cpp");
 		set_cpp(NULL, "gcpp");
@@ -91,6 +95,7 @@ target		:	TARGET SPACES STRING {
 		set_ld($<scalar.value>3, "gld");
 		printf("using cross compiler\n");
 	}
+	str[0] = 0;
 	strcat(str, "-melf_");
 	strcat(str, $<scalar.value>3);
 	add_ldflags(str);
@@ -202,11 +207,10 @@ void add_cflags(const char* str){
 }
 
 void add_defines(const char* str){
-	char* def = malloc(2 + strlen(str) + 2 + 1);
+	char* def = malloc(2 + strlen(str) + 1);
 	def[0] = 0;
 	strcat(def, "-D");
 	strcat(def, str);
-	strcat(def, "=1");
 	if(defines == NULL){
 		defines = malloc(strlen(def) + 1);
 		strcpy(defines, def);

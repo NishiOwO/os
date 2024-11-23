@@ -2,3 +2,4 @@
 
 target i386
 option MULTIBOOT
+option DEBUG
