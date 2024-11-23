@@ -261,13 +261,8 @@ void add_defines(const char* str){
 	free(def);
 }
 
-void add_controller(const char* name){
-	const char* path = "../dri/controller/";
-	char* str = malloc(strlen(path) + strlen(name) + 2 + 1);
-	str[0] = 0;
-	strcat(str, path);
-	strcat(str, name);
-	strcat(str, ".c");
+void add_driver(const char* name, const char* str){
+	char* obj;
 	if(drivers == NULL){
 		drivers = malloc(strlen(str) + 1);
 		strcpy(drivers, str);
@@ -279,24 +274,34 @@ void add_controller(const char* name){
 		free(drivers);
 		drivers = new;
 	}
-	free(str);
-	path = "dri/ctrl_";
-	str = malloc(strlen(path) + strlen(name) + 2 + 1);
-	str[0] = 0;
-	strcat(str, path);
-	strcat(str, name);
-	strcat(str, ".o");
+	obj = malloc(2 + 3 + 1 + strlen(name) + 2 + 1);
+	obj[0] = 0;
+	strcat(obj, "./dri/");
+	strcat(obj, name);
+	strcat(obj, ".o");
 	if(drivers_o == NULL){
-		drivers_o = malloc(strlen(str) + 1);
-		strcpy(drivers_o, str);
+		drivers_o = malloc(strlen(obj) + 1);
+		strcpy(drivers_o, obj);
 	}else{
-		char* new = malloc(strlen(drivers_o) + 1 + strlen(str) + 1);
+		char* new;
+		new = malloc(strlen(drivers_o) + 1 + strlen(obj) + 1);
 		strcpy(new, drivers_o);
 		new[strlen(drivers_o)] = ' ';
-		strcpy(new + strlen(drivers_o) + 1, str);
+		strcpy(new + strlen(drivers_o) + 1, obj);
 		free(drivers_o);
 		drivers_o = new;
 	}
+	free(obj);
+}
+
+void add_controller(const char* name){
+	const char* path = "../dri/controller/";
+	char* str = malloc(strlen(path) + strlen(name) + 2 + 1);
+	str[0] = 0;
+	strcat(str, path);
+	strcat(str, name);
+	strcat(str, ".c");
+	add_driver(name, str);
 	free(str);
 }
 void add_console(const char* name){
@@ -306,35 +311,7 @@ void add_console(const char* name){
 	strcat(str, path);
 	strcat(str, name);
 	strcat(str, ".c");
-	if(drivers == NULL){
-		drivers = malloc(strlen(str) + 1);
-		strcpy(drivers, str);
-	}else{
-		char* new = malloc(strlen(drivers) + 1 + strlen(str) + 1);
-		strcpy(new, drivers);
-		new[strlen(drivers)] = ' ';
-		strcpy(new + strlen(drivers) + 1, str);
-		free(drivers);
-		drivers = new;
-	}
-	free(str);
-	path = "dri/cons_";
-	str = malloc(strlen(path) + strlen(name) + 2 + 1);
-	str[0] = 0;
-	strcat(str, path);
-	strcat(str, name);
-	strcat(str, ".o");
-	if(drivers_o == NULL){
-		drivers_o = malloc(strlen(str) + 1);
-		strcpy(drivers_o, str);
-	}else{
-		char* new = malloc(strlen(drivers_o) + 1 + strlen(str) + 1);
-		strcpy(new, drivers_o);
-		new[strlen(drivers_o)] = ' ';
-		strcpy(new + strlen(drivers_o) + 1, str);
-		free(drivers_o);
-		drivers_o = new;
-	}
+	add_driver(name, str);
 	free(str);
 }
 
