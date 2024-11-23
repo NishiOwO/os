@@ -19,6 +19,7 @@ void set_cc(const char* prefix, const char* name);
 void set_as(const char* prefix, const char* name);
 void set_ld(const char* prefix, const char* name);
 void set_ar(const char* prefix, const char* name);
+void add_controllers(const char* str);
 void add_defines(const char* str);
 void add_cflags(const char* str);
 void add_asflags(const char* str);
@@ -52,6 +53,7 @@ option		:	OPTION SPACES STRING {
 };
 	
 controller	:	CONTROLLER SPACES STRING {
+	add_controllers($<scalar.value>3);
 	printf("controller: %s\n", $<scalar.value>3);
 };
 
@@ -250,6 +252,45 @@ void add_defines(const char* str){
 		defines = new;
 	}
 	free(def);
+}
+
+void add_controllers(const char* name){
+	const char* path = "../dri/controller/";
+	char* str = malloc(strlen(path) + strlen(name) + 2 + 1);
+	str[0] = 0;
+	strcat(str, path);
+	strcat(str, name);
+	strcat(str, ".c");
+	if(controllers == NULL){
+		controllers = malloc(strlen(str) + 1);
+		strcpy(controllers, str);
+	}else{
+		char* new = malloc(strlen(controllers) + 1 + strlen(str) + 1);
+		strcpy(new, controllers);
+		new[strlen(controllers)] = ' ';
+		strcpy(new + strlen(controllers) + 1, str);
+		free(controllers);
+		controllers = new;
+	}
+	free(str);
+	path = "dri/ctrl_";
+	str = malloc(strlen(path) + strlen(name) + 2 + 1);
+	str[0] = 0;
+	strcat(str, path);
+	strcat(str, name);
+	strcat(str, ".o");
+	if(controllers_o == NULL){
+		controllers_o = malloc(strlen(str) + 1);
+		strcpy(controllers_o, str);
+	}else{
+		char* new = malloc(strlen(controllers_o) + 1 + strlen(str) + 1);
+		strcpy(new, controllers_o);
+		new[strlen(controllers_o)] = ' ';
+		strcpy(new + strlen(controllers_o) + 1, str);
+		free(controllers_o);
+		controllers_o = new;
+	}
+	free(str);
 }
 
 void add_asflags(const char* str){

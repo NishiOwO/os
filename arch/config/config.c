@@ -122,6 +122,7 @@ int main(int argc, char** argv){
 	}
 	mkdir("arch", 0755);
 	mkdir("rootfs", 0755);
+	mkdir("dri", 0755);
 
 	CREATE("config.mk");
 	fprintf(f, "BUILDDIR = %s/build\n", buffer);
@@ -145,8 +146,8 @@ int main(int argc, char** argv){
 	fprintf(f, "mprt.iso: rootfs/mprt ../contrib/boot.cfg\n");
 	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
-	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld\n");
-	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o c/libc.a\n");
+	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld %s\n", controllers_o);
+	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o %s c/libc.a\n", controllers_o);
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
 	fprintf(f, "../kern::\n");

@@ -22,7 +22,6 @@
 
 .section .text
 .global _start
-.type _start, @function
 .extern init_kernel
 _start:
 	mov %eax, seax

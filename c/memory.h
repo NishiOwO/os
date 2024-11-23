@@ -6,5 +6,6 @@
 #include <arch/types.h>
 
 void* memset(void* ptr, uint8_t data, uintptr_t size);
+void memcpy(void* _dest, void* _src, uintptr_t len);
 
 #endif
