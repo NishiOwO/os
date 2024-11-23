@@ -135,7 +135,7 @@ int main(int argc, char** argv){
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
 	fprintf(f, "all: mprt\n");
 	fprintf(f, "mprt: arch ../kern linker.ld\n");
-	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) arch/*.o\n");
+	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o\n");
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
 	fprintf(f, "../kern::\n");

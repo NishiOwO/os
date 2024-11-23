@@ -4,8 +4,8 @@
 .set FLAGS,		(1 << 0) | (1 << 1)
 .set CHECKSUM,		-(MAGIC_NUMBER + FLAGS)
 
+.align 8
 .section .multiboot
-	.align 4
 	.long MAGIC_NUMBER
 	.long FLAGS
 	.long CHECKSUM
@@ -14,13 +14,13 @@
 	seax: .long 0
 	sebx: .long 0
 
-.section bss
+.section .bss
 	.align 16
 	stack_bottom:
 	.skip 16384
 	stack_top:
 
-.section text
+.section .text
 .global _start
 .type _start, @function
 .extern init_kernel

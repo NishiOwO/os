@@ -4,13 +4,11 @@
 ENTRY(_start)
 
 SECTIONS {
-#ifdef MULTIBOOT
-	.multiboot : {
-		*(.multiboot)
-	}
-#endif
 	. = 0x100000;
 	.text : {
+#ifdef MULTIBOOT
+		*(.multiboot)
+#endif
 		*(.text)
 	}
 	.rodata BLOCK(4K) : ALIGN(4K) {
