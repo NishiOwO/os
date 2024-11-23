@@ -67,11 +67,15 @@ target {
 	return TARGET;
 }
 
+controller {
+	return CONTROLLER;
+}
+
 ([ \t]+) {
 	return SPACES;
 }
 
-([A-Za-z0-9_]+) {
+([A-Za-z0-9_=]+) {
 	yylval.scalar.value = malloc(strlen(yytext) + 1);
 	strcpy(yylval.scalar.value, yytext);
 	return STRING;

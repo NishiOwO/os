@@ -126,7 +126,7 @@ int main(int argc, char** argv){
 	fprintf(f, "AS = %s\n", as);
 	fprintf(f, "LD = %s\n", ld);
 	fprintf(f, "DEFINES = %s\n", defines == NULL ? "" : defines);
-	fprintf(f, "CFLAGS = %s -I$(BUILDDIR) -I$(TOPDIR) $(DEFINES)\n", cflags == NULL ? "" : cflags);
+	fprintf(f, "CFLAGS = %s -I$(BUILDDIR) -I$(TOPDIR) $(DEFINES) -ffreestanding\n", cflags == NULL ? "" : cflags);
 	fprintf(f, "ASFLAGS = %s\n", asflags == NULL ? "" : asflags);
 	fprintf(f, "LDFLAGS = %s\n", ldflags == NULL ? "" : ldflags);
 	fclose(f);

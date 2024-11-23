@@ -33,7 +33,7 @@ void add_ldflags(const char* str);
 }
 
 %start statement_list
-%token NEWLINE STRING IDENT SPACES OPTION TARGET
+%token NEWLINE STRING IDENT SPACES OPTION TARGET CONTROLLER
 
 %%
 
@@ -42,11 +42,16 @@ statement_list	:	statement
 
 statement	:	option NEWLINE
 		|	target NEWLINE
+		|	controller NEWLINE
 		|	NEWLINE;
 	
 option		:	OPTION SPACES STRING {
 	add_defines($<scalar.value>3);
 	printf("option: %s\n", $<scalar.value>3);
+};
+	
+controller	:	CONTROLLER SPACES STRING {
+	printf("controller: %s\n", $<scalar.value>3);
 };
 
 target		:	TARGET SPACES STRING {

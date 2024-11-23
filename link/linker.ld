@@ -27,4 +27,6 @@ SECTIONS {
 	.comment BLOCK(4K) : ALIGN(4K) {
 		*(.comment)
 	}
+
+	kernel_end = ADDR(.text);
 }
