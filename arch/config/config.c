@@ -102,9 +102,14 @@ int main(int argc, char** argv){
 		fprintf(stderr, "failed to probe linker\n");
 		return 1;
 	}
+	if(ar == NULL){
+		fprintf(stderr, "failed to probe archiver\n");
+		return 1;
+	}
 	printf("C compiler: %s\n", cc);
 	printf("assembler: %s\n", as);
 	printf("linker: %s\n", ld);
+	printf("archiver: %s\n", ar);
 	printf("DEFINES: %s\n", defines == NULL ? "" : defines);
 	printf("CFLAGS: %s\n", cflags == NULL ? "" : cflags);
 	printf("ASFLAGS: %s\n", asflags == NULL ? "" : asflags);
@@ -125,6 +130,7 @@ int main(int argc, char** argv){
 	fprintf(f, "CC = %s\n", cc);
 	fprintf(f, "AS = %s\n", as);
 	fprintf(f, "LD = %s\n", ld);
+	fprintf(f, "AR = %s\n", ar);
 	fprintf(f, "DEFINES = %s\n", defines == NULL ? "" : defines);
 	fprintf(f, "CFLAGS = %s -I$(BUILDDIR) -I$(TOPDIR) $(DEFINES) -ffreestanding\n", cflags == NULL ? "" : cflags);
 	fprintf(f, "ASFLAGS = %s\n", asflags == NULL ? "" : asflags);

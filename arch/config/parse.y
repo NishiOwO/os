@@ -18,6 +18,7 @@ void set_cpp(const char* prefix, const char* name);
 void set_cc(const char* prefix, const char* name);
 void set_as(const char* prefix, const char* name);
 void set_ld(const char* prefix, const char* name);
+void set_ar(const char* prefix, const char* name);
 void add_defines(const char* str);
 void add_cflags(const char* str);
 void add_asflags(const char* str);
@@ -76,6 +77,8 @@ target		:	TARGET SPACES STRING {
 		set_as(NULL, "gas");
 		set_ld(NULL, "ld");
 		set_ld(NULL, "gld");
+		set_ar(NULL, "ar");
+		set_ar(NULL, "gar");
 		printf("target == host, using cc/gcc\n");
 	}else if((strcmp("amd64", uts.machine) == 0 || strcmp("x86_64", uts.machine) == 0) && strcmp("i386", $<scalar.value>3) == 0){
 		add_cflags("-m32");
@@ -88,6 +91,8 @@ target		:	TARGET SPACES STRING {
 		set_as(NULL, "gas");
 		set_ld(NULL, "ld");
 		set_ld(NULL, "gld");
+		set_ar(NULL, "ar");
+		set_ar(NULL, "gar");
 		printf("target == 32 bit version of host, using cc/gcc with -m32\n");
 	}else{
 		set_cpp($<scalar.value>3, "cpp");
@@ -98,6 +103,8 @@ target		:	TARGET SPACES STRING {
 		set_as($<scalar.value>3, "gas");
 		set_ld($<scalar.value>3, "ld");
 		set_ld($<scalar.value>3, "gld");
+		set_ar($<scalar.value>3, "ar");
+		set_ar($<scalar.value>3, "gar");
 		printf("using cross compiler\n");
 	}
 	str[0] = 0;
@@ -194,6 +201,21 @@ void set_ld(const char* prefix, const char* name){
 		if(ld != NULL) free(ld);
 		ld = malloc(strlen(str) + 1);
 		strcpy(ld, str);
+	}
+}
+
+void set_ar(const char* prefix, const char* name){
+	char str[512];
+	str[0] = 0;
+	if(prefix != NULL){
+		strcat(str, prefix);
+		strcat(str, "-none-elf-");
+	}
+	strcat(str, name);
+	if(have_program(str)){
+		if(ar != NULL) free(ar);
+		ar = malloc(strlen(str) + 1);
+		strcpy(ar, str);
 	}
 }
 
