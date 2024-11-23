@@ -133,18 +133,21 @@ int main(int argc, char** argv){
 
 	CREATE("Makefile");
 	fprintf(f, "include config.mk\n");
-	fprintf(f, ".PHONY: all clean arch ../kern\n");
+	fprintf(f, ".PHONY: all clean arch ../kern ../c\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
 	fprintf(f, "all: mprt.iso\n");
 	fprintf(f, "mprt.iso: rootfs/mprt ../contrib/boot.cfg\n");
 	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
-	fprintf(f, "rootfs/mprt: arch ../kern linker.ld\n");
-	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o\n");
+	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld\n");
+	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o c/libc.a\n");
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
 	fprintf(f, "../kern::\n");
 	fprintf(f, "	mkdir -p ./kern\n");
+	fprintf(f, "	$(MAKE) -C $@\n");
+	fprintf(f, "../c::\n");
+	fprintf(f, "	mkdir -p ./c\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
 	fprintf(f, "linker.ld: ../link/linker.ld\n");
 	fprintf(f, "	$(CPP) $(DEFINES) ../link/linker.ld > $@\n");

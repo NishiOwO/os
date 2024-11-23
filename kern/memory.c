@@ -1,6 +1,7 @@
 /* $Id$ */
 
 #include <kern/memory.h>
+#include <c/memory.h>
 
 extern uintptr_t mem_last_alloc;
 extern uintptr_t mem_heap_begin;
