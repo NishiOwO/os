@@ -116,6 +116,7 @@ int main(int argc, char** argv){
 		return 1;
 	}
 	mkdir("arch", 0755);
+	mkdir("rootfs", 0755);
 
 	CREATE("config.mk");
 	fprintf(f, "BUILDDIR = %s/build\n", buffer);
@@ -124,7 +125,7 @@ int main(int argc, char** argv){
 	fprintf(f, "AS = %s\n", as);
 	fprintf(f, "LD = %s\n", ld);
 	fprintf(f, "DEFINES = %s\n", defines == NULL ? "" : defines);
-	fprintf(f, "CFLAGS = %s\n", cflags == NULL ? "" : cflags);
+	fprintf(f, "CFLAGS = %s -I$(BUILDDIR)\n", cflags == NULL ? "" : cflags);
 	fprintf(f, "ASFLAGS = %s\n", asflags == NULL ? "" : asflags);
 	fprintf(f, "LDFLAGS = %s\n", ldflags == NULL ? "" : ldflags);
 	fclose(f);
@@ -133,8 +134,11 @@ int main(int argc, char** argv){
 	fprintf(f, "include config.mk\n");
 	fprintf(f, ".PHONY: all clean arch ../kern\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
-	fprintf(f, "all: mprt\n");
-	fprintf(f, "mprt: arch ../kern linker.ld\n");
+	fprintf(f, "all: mprt.iso\n");
+	fprintf(f, "mprt.iso: rootfs/mprt ../contrib/boot.cfg\n");
+	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
+	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
+	fprintf(f, "rootfs/mprt: arch ../kern linker.ld\n");
 	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o\n");
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
@@ -157,14 +161,20 @@ int main(int argc, char** argv){
 	for(i = 0; i < count; i++){
 		char* name = malloc(strlen(sources[i]) + 1);
 		int j;
+		int add = 1;
 		strcpy(name, sources[i]);
 		for(j = strlen(name) - 1; j >= 0; j--){
 			if(name[j] == '.'){
 				name[j] = 0;
+				if(strcmp(name + j + 1, "h") == 0){
+					add = 0;
+				}
 				break;
 			}
 		}
-		fprintf(f, " %s.o", name);
+		if(add){
+			fprintf(f, " %s.o", name);
+		}
 		free(name);
 	}
 	fprintf(f, "\n");
