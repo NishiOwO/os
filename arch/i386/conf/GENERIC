@@ -4,5 +4,5 @@ target i386
 option MULTIBOOT
 option DEBUG
 option MAX_ALLOCS=256
-controller ata
 console vga
+controller ata
