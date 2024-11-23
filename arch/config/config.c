@@ -63,9 +63,10 @@ int main(int argc, char** argv){
 	if(dir != NULL){
 		struct dirent* d;
 		while((d = readdir(dir)) != NULL){
+			int cond = 0;
 			if(strcmp(d->d_name, "..") == 0 || strcmp(d->d_name, ".") == 0) continue;
-			if(strlen(d->d_name) < 2) continue;
-			if((d->d_name[strlen(d->d_name) - 1] == 's' || d->d_name[strlen(d->d_name) - 1] == 'c' || d->d_name[strlen(d->d_name) - 1] == 'h') && d->d_name[strlen(d->d_name) - 2] == '.'){
+			cond = cond || (strlen(d->d_name) >= 2 && (d->d_name[strlen(d->d_name) - 1] == 's' || d->d_name[strlen(d->d_name) - 1] == 'c' || d->d_name[strlen(d->d_name) - 1] == 'h') && d->d_name[strlen(d->d_name) - 2] == '.');
+			if(cond){
 				char* path = malloc(strlen(d->d_name) + 1);
 				strcpy(path, d->d_name);
 				sources[count++] = path;
@@ -116,6 +117,8 @@ int main(int argc, char** argv){
 	mkdir("arch", 0755);
 
 	CREATE("config.mk");
+	fprintf(f, "BUILDDIR = %s/build\n", buffer);
+	fprintf(f, "CPP = %s -E\n", cc);
 	fprintf(f, "CC = %s\n", cc);
 	fprintf(f, "AS = %s\n", as);
 	fprintf(f, "LD = %s\n", ld);
@@ -125,6 +128,38 @@ int main(int argc, char** argv){
 	fclose(f);
 
 	CREATE("Makefile");
+	fprintf(f, ".PHONY: all arch\n");
+	fprintf(f, ".SUFFIXES: .c .s .o\n");
+	fprintf(f, "all: arch\n");
+	fprintf(f, "arch:\n");
+	fprintf(f, "	$(MAKE) -C $@\n");
+	fclose(f);
+
+	CREATE("arch/Makefile");
+	fprintf(f, "include ../config.mk\n");
+	fprintf(f, ".PHONY: all clean\n");
+	fprintf(f, ".SUFFIXES: .c .s .o\n");
+	fprintf(f, "all:");
+	for(i = 0; i < count; i++){
+		char* name = malloc(strlen(sources[i]) + 1);
+		int j;
+		strcpy(name, sources[i]);
+		for(j = strlen(name) - 1; j >= 0; j--){
+			if(name[j] == '.'){
+				name[j] = 0;
+				break;
+			}
+		}
+		fprintf(f, " %s.o", name);
+		free(name);
+	}
+	fprintf(f, "\n");
+	fprintf(f, ".s.o:\n");
+	fprintf(f, "	$(AS) $(ASFLAGS) -o $@ $<\n");
+	fprintf(f, ".c.o:\n");
+	fprintf(f, "	$(CC) $(CFLAGS) -c -o $@ $<\n");
+	fprintf(f, "clean:\n");
+	fprintf(f, "	rm -f *.o\n");
 	fclose(f);
 
 	if(chdir("arch")){

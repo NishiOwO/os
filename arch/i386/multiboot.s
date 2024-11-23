@@ -1,4 +1,4 @@
-; $Id$
+/* $Id$ */
 
 .set MAGIC_NUMBER,	0x1badb002
 .set FLAGS,		(1 << 0) | (1 << 1)
