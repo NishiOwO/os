@@ -75,6 +75,10 @@ console {
 	return CONSOLE;
 }
 
+ident {
+	return IDENT;
+}
+
 ([ \t]+) {
 	return SPACES;
 }

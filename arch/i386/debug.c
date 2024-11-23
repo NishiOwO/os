@@ -1,9 +1,9 @@
 /* $Id$ */
 
-#include <arch/debug.h>
+#include <kern/debug.h>
 #include <arch/io.h>
 
-void kdebug(const char* str){
+void kdebug_handler(const char* str){
 #ifdef DEBUG
 	int i;
 	for(i = 0; str[i] != 0; i++){

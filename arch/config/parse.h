@@ -19,6 +19,7 @@ PARSE_EXTERN char* ld		DEFAULT;
 PARSE_EXTERN char* ar		DEFAULT;
 PARSE_EXTERN char* drivers	DEFAULT;
 PARSE_EXTERN char* drivers_o	DEFAULT;
+PARSE_EXTERN char* drivernames	DEFAULT;
 PARSE_EXTERN char* defines	DEFAULT;
 PARSE_EXTERN char* cflags	DEFAULT;
 PARSE_EXTERN char* asflags	DEFAULT;

@@ -1,7 +1,8 @@
 /* $Id$ */
 
 #include <arch/io.h>
-#include <arch/debug.h>
+#include <kern/debug.h>
+#include <kern/print.h>
 
 void kernel_main(void);
 void setup_memory(void);
@@ -9,6 +10,8 @@ void setup_memory(void);
 void init_kernel(unsigned long magic, unsigned long addr){
 	unsigned char* vram = (unsigned char*)0xb8000;
 	int i;
+	kdebuginit();
+	kprintinit();
 	kdebug("Putting colorbar");
 	for(i = 0; i < 80 * 25; i++){
 		vram[i * 2 + 0] = 0;

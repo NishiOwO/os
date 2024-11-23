@@ -1,7 +1,7 @@
 /* $Id$ */
 
 #include <arch/types.h>
-#include <arch/debug.h>
+#include <kern/debug.h>
 #include <kern/memory.h>
 
 uintptr_t mem_last_alloc;

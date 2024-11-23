@@ -36,7 +36,7 @@ void add_ldflags(const char* str);
 }
 
 %start statement_list
-%token NEWLINE STRING IDENT SPACES OPTION TARGET CONTROLLER CONSOLE
+%token NEWLINE STRING IDENT SPACES OPTION TARGET CONTROLLER CONSOLE IDENT
 
 %%
 
@@ -47,21 +47,32 @@ statement	:	option NEWLINE
 		|	target NEWLINE
 		|	controller NEWLINE
 		|	console NEWLINE
+		|	ident NEWLINE
 		|	NEWLINE;
 	
 option		:	OPTION SPACES STRING {
 	add_defines($<scalar.value>3);
 	printf("option: %s\n", $<scalar.value>3);
 };
-	
+
 controller	:	CONTROLLER SPACES STRING {
 	add_controller($<scalar.value>3);
 	printf("controller: %s\n", $<scalar.value>3);
 };
-	
+
 console	:	CONSOLE SPACES STRING {
 	add_console($<scalar.value>3);
 	printf("console: %s\n", $<scalar.value>3);
+};
+
+ident	:	IDENT SPACES STRING {
+	char str[512];
+	str[0] = 0;
+	strcat(str, "IDENT=\\\"");
+	strcat(str, $<scalar.value>3);
+	strcat(str, "\\\"");
+	add_defines(str);
+	printf("ident: %s\n", $<scalar.value>3);
 };
 
 target		:	TARGET SPACES STRING {
@@ -292,6 +303,18 @@ void add_driver(const char* name, const char* str){
 		drivers_o = new;
 	}
 	free(obj);
+	if(drivernames == NULL){
+		drivernames = malloc(strlen(name) + 1);
+		strcpy(drivernames, name);
+	}else{
+		char* new;
+		new = malloc(strlen(drivernames) + 1 + strlen(name) + 1);
+		strcpy(new, drivernames);
+		new[strlen(drivernames)] = ' ';
+		strcpy(new + strlen(drivernames) + 1, name);
+		free(drivernames);
+		drivernames = new;
+	}
 }
 
 void add_controller(const char* name){

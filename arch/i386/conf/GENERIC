@@ -1,6 +1,7 @@
 # $Id$
 
 target i386
+ident GENERIC
 option MULTIBOOT
 option DEBUG
 option MAX_ALLOCS=256

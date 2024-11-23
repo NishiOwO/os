@@ -230,9 +230,41 @@ int main(int argc, char** argv){
 	fclose(f);
 
 	CREATE("drivers.c");
-	fprintf(f, "#include <arch/debug.h>\n");
+	fprintf(f, "#include <kern/debug.h>\n");
+	if(drivernames != NULL){
+		char* str = malloc(strlen(drivernames) + 1);
+		int i;
+		int incr = 0;
+		strcpy(str, drivernames);
+		for(i = 0;; i++){
+			if(str[i] == ' ' || str[i] == 0){
+				int brk = str[i] == 0;
+				str[i] = 0;
+				fprintf(f, "void %s_init(void);\n", str + incr);
+				incr = i + 1;
+				if(brk) break;
+			}
+		}
+		free(str);
+	}
 	fprintf(f, "void drivers_init(void){\n");
 	fprintf(f, "	kdebug(\"Initializing drivers\");\n");
+	if(drivernames != NULL){
+		char* str = malloc(strlen(drivernames) + 1);
+		int i;
+		int incr = 0;
+		strcpy(str, drivernames);
+		for(i = 0;; i++){
+			if(str[i] == ' ' || str[i] == 0){
+				int brk = str[i] == 0;
+				str[i] = 0;
+				fprintf(f, "	%s_init();\n", str + incr);
+				incr = i + 1;
+				if(brk) break;
+			}
+		}
+		free(str);
+	}
 	fprintf(f, "}\n");
 	fclose(f);
 
