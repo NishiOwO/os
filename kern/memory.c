@@ -53,9 +53,3 @@ void _free(void* mem){
 	mem_used -= alloc->size + sizeof(struct alloc_t);
 	alloc->status = 0;
 }
-
-void* memset(void* ptr, uint8_t data, uintptr_t size){
-	uint8_t* dst = (uint8_t*)ptr;
-	for(; size != 0; size--) *dst++ = data;
-	return ptr;
-}

@@ -1,0 +1,5 @@
+Device naming
+================
+Name | Meaning  | Example
+-----+----------+--------------------------
+DI   | ATA disk | DIA0 (ATA Primary Master)
