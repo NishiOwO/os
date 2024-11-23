@@ -1,4 +1,4 @@
 # $Id$
 
 target i386
-option DEBUG
+option MULTIBOOT

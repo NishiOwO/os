@@ -105,6 +105,7 @@ int main(int argc, char** argv){
 	printf("C compiler: %s\n", cc);
 	printf("assembler: %s\n", as);
 	printf("linker: %s\n", ld);
+	printf("DEFINES: %s\n", defines == NULL ? "" : defines);
 	printf("CFLAGS: %s\n", cflags == NULL ? "" : cflags);
 	printf("ASFLAGS: %s\n", asflags == NULL ? "" : asflags);
 	printf("LDFLAGS: %s\n", ldflags == NULL ? "" : ldflags);
@@ -118,21 +119,34 @@ int main(int argc, char** argv){
 
 	CREATE("config.mk");
 	fprintf(f, "BUILDDIR = %s/build\n", buffer);
-	fprintf(f, "CPP = %s -E\n", cc);
+	fprintf(f, "CPP = %s -P\n", cpp);
 	fprintf(f, "CC = %s\n", cc);
 	fprintf(f, "AS = %s\n", as);
 	fprintf(f, "LD = %s\n", ld);
+	fprintf(f, "DEFINES = %s\n", defines == NULL ? "" : defines);
 	fprintf(f, "CFLAGS = %s\n", cflags == NULL ? "" : cflags);
 	fprintf(f, "ASFLAGS = %s\n", asflags == NULL ? "" : asflags);
 	fprintf(f, "LDFLAGS = %s\n", ldflags == NULL ? "" : ldflags);
 	fclose(f);
 
 	CREATE("Makefile");
-	fprintf(f, ".PHONY: all arch\n");
+	fprintf(f, "include config.mk\n");
+	fprintf(f, ".PHONY: all clean arch ../kern\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
-	fprintf(f, "all: arch\n");
-	fprintf(f, "arch:\n");
+	fprintf(f, "all: mprt\n");
+	fprintf(f, "mprt: arch ../kern linker.ld\n");
+	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) arch/*.o\n");
+	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
+	fprintf(f, "../kern::\n");
+	fprintf(f, "	mkdir -p ./kern\n");
+	fprintf(f, "	$(MAKE) -C $@\n");
+	fprintf(f, "linker.ld: ../link/linker.ld\n");
+	fprintf(f, "	$(CPP) $(DEFINES) ../link/linker.ld > $@\n");
+	fprintf(f, "clean:\n");
+	fprintf(f, "	-rm -f mprt\n");
+	fprintf(f, "	$(MAKE) -C arch clean\n");
+	fprintf(f, "	$(MAKE) -C ../kern clean\n");
 	fclose(f);
 
 	CREATE("arch/Makefile");

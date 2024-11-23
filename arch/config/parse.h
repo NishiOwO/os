@@ -12,9 +12,11 @@
 #define DEFAULT
 #endif
 
+PARSE_EXTERN char* cpp		DEFAULT;
 PARSE_EXTERN char* cc		DEFAULT;
 PARSE_EXTERN char* as		DEFAULT;
 PARSE_EXTERN char* ld		DEFAULT;
+PARSE_EXTERN char* defines	DEFAULT;
 PARSE_EXTERN char* cflags	DEFAULT;
 PARSE_EXTERN char* asflags	DEFAULT;
 PARSE_EXTERN char* ldflags	DEFAULT;

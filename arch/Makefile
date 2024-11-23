@@ -8,8 +8,10 @@ KERNEL = GENERIC
 all: ./config/config
 
 kernel: ./config/config $(ARCH)/conf/$(KERNEL)
-	-rm -rf ../build
-	./config/config $(ARCH)/conf/$(KERNEL)
+	if [ ! -f "../build/Makefile" ]; then \
+		rm -rf ../build ; \
+		./config/config $(ARCH)/conf/$(KERNEL) ; \
+	fi
 	$(MAKE) -C ../build
 
 ./config/config::

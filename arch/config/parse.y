@@ -14,9 +14,11 @@
 int have_program(const char* str);
 int yylex(void);
 int yyerror(const char*);
+void set_cpp(const char* prefix, const char* name);
 void set_cc(const char* prefix, const char* name);
 void set_as(const char* prefix, const char* name);
 void set_ld(const char* prefix, const char* name);
+void add_defines(const char* str);
 void add_cflags(const char* str);
 void add_asflags(const char* str);
 void add_ldflags(const char* str);
@@ -43,12 +45,7 @@ statement	:	option NEWLINE
 		|	NEWLINE;
 	
 option		:	OPTION SPACES STRING {
-	char str[512];
-	str[0] = 0;
-	strcat(str, "-D");
-	strcat(str, $<scalar.value>3);
-	strcat(str, "=1");
-	add_cflags(str);
+	add_defines($<scalar.value>3);
 	printf("option: %s\n", $<scalar.value>3);
 };
 
@@ -62,6 +59,8 @@ target		:	TARGET SPACES STRING {
 	add_cflags("-nostdinc");
 	add_ldflags("-nostdlib");
 	if(strcmp($<scalar.value>3, uts.machine) == 0){
+		set_cpp(NULL, "cpp");
+		set_cpp(NULL, "gcpp");
 		set_cc(NULL, "cc");
 		set_cc(NULL, "gcc");
 		set_as(NULL, "as");
@@ -72,6 +71,8 @@ target		:	TARGET SPACES STRING {
 	}else if((strcmp("amd64", uts.machine) == 0 || strcmp("x86_64", uts.machine) == 0) && strcmp("i386", $<scalar.value>3) == 0){
 		add_cflags("-m32");
 		add_asflags("--32");
+		set_cpp(NULL, "cpp");
+		set_cpp(NULL, "gcpp");
 		set_cc(NULL, "cc");
 		set_cc(NULL, "gcc");
 		set_as(NULL, "as");
@@ -80,6 +81,8 @@ target		:	TARGET SPACES STRING {
 		set_ld(NULL, "gld");
 		printf("target == 32 bit version of host, using cc/gcc with -m32\n");
 	}else{
+		set_cpp($<scalar.value>3, "cpp");
+		set_cpp($<scalar.value>3, "gcpp");
 		set_cc($<scalar.value>3, "cc");
 		set_cc($<scalar.value>3, "gcc");
 		set_as($<scalar.value>3, "as");
@@ -122,6 +125,22 @@ int have_program(const char* str){
 	free(buf);
 	return st;
 }
+
+void set_cpp(const char* prefix, const char* name){
+	char str[512];
+	str[0] = 0;
+	if(prefix != NULL){
+		strcat(str, prefix);
+		strcat(str, "-none-elf-");
+	}
+	strcat(str, name);
+	if(have_program(str)){
+		if(cpp != NULL) free(cpp);
+		cpp = malloc(strlen(str) + 1);
+		strcpy(cpp, str);
+	}
+}
+	
 
 void set_cc(const char* prefix, const char* name){
 	char str[512];
@@ -180,6 +199,26 @@ void add_cflags(const char* str){
 		free(cflags);
 		cflags = new;
 	}
+}
+
+void add_defines(const char* str){
+	char* def = malloc(2 + strlen(str) + 2 + 1);
+	def[0] = 0;
+	strcat(def, "-D");
+	strcat(def, str);
+	strcat(def, "=1");
+	if(defines == NULL){
+		defines = malloc(strlen(def) + 1);
+		strcpy(defines, def);
+	}else{
+		char* new = malloc(strlen(defines) + 1 + strlen(def) + 1);
+		strcpy(new, defines);
+		new[strlen(defines)] = ' ';
+		strcpy(new + strlen(defines) + 1, def);
+		free(defines);
+		defines = new;
+	}
+	free(def);
 }
 
 void add_asflags(const char* str){
