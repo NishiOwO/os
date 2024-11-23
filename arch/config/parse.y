@@ -84,9 +84,14 @@ target		:	TARGET SPACES STRING {
 	printf("host: %s\n", uts.machine);
 	add_cflags("-nostdinc");
 	add_ldflags("-nostdlib");
+	str[0] = 0;
 	strcat(str, "TARGET=\\\"");
 	strcat(str, $<scalar.value>3);
 	strcat(str, "\\\"");
+	add_defines(str);
+	str[0] = 0;
+	strcat(str, "M_TARGET=");
+	strcat(str, $<scalar.value>3);
 	add_defines(str);
 	if(strcmp($<scalar.value>3, uts.machine) == 0){
 		set_cpp(NULL, "cpp");
