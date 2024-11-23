@@ -19,7 +19,8 @@ void set_cc(const char* prefix, const char* name);
 void set_as(const char* prefix, const char* name);
 void set_ld(const char* prefix, const char* name);
 void set_ar(const char* prefix, const char* name);
-void add_controllers(const char* str);
+void add_controller(const char* str);
+void add_console(const char* str);
 void add_defines(const char* str);
 void add_cflags(const char* str);
 void add_asflags(const char* str);
@@ -35,7 +36,7 @@ void add_ldflags(const char* str);
 }
 
 %start statement_list
-%token NEWLINE STRING IDENT SPACES OPTION TARGET CONTROLLER
+%token NEWLINE STRING IDENT SPACES OPTION TARGET CONTROLLER CONSOLE
 
 %%
 
@@ -45,6 +46,7 @@ statement_list	:	statement
 statement	:	option NEWLINE
 		|	target NEWLINE
 		|	controller NEWLINE
+		|	console NEWLINE
 		|	NEWLINE;
 	
 option		:	OPTION SPACES STRING {
@@ -53,8 +55,13 @@ option		:	OPTION SPACES STRING {
 };
 	
 controller	:	CONTROLLER SPACES STRING {
-	add_controllers($<scalar.value>3);
+	add_controller($<scalar.value>3);
 	printf("controller: %s\n", $<scalar.value>3);
+};
+	
+console	:	CONSOLE SPACES STRING {
+	add_console($<scalar.value>3);
+	printf("console: %s\n", $<scalar.value>3);
 };
 
 target		:	TARGET SPACES STRING {
@@ -254,23 +261,23 @@ void add_defines(const char* str){
 	free(def);
 }
 
-void add_controllers(const char* name){
+void add_controller(const char* name){
 	const char* path = "../dri/controller/";
 	char* str = malloc(strlen(path) + strlen(name) + 2 + 1);
 	str[0] = 0;
 	strcat(str, path);
 	strcat(str, name);
 	strcat(str, ".c");
-	if(controllers == NULL){
-		controllers = malloc(strlen(str) + 1);
-		strcpy(controllers, str);
+	if(drivers == NULL){
+		drivers = malloc(strlen(str) + 1);
+		strcpy(drivers, str);
 	}else{
-		char* new = malloc(strlen(controllers) + 1 + strlen(str) + 1);
-		strcpy(new, controllers);
-		new[strlen(controllers)] = ' ';
-		strcpy(new + strlen(controllers) + 1, str);
-		free(controllers);
-		controllers = new;
+		char* new = malloc(strlen(drivers) + 1 + strlen(str) + 1);
+		strcpy(new, drivers);
+		new[strlen(drivers)] = ' ';
+		strcpy(new + strlen(drivers) + 1, str);
+		free(drivers);
+		drivers = new;
 	}
 	free(str);
 	path = "dri/ctrl_";
@@ -279,16 +286,54 @@ void add_controllers(const char* name){
 	strcat(str, path);
 	strcat(str, name);
 	strcat(str, ".o");
-	if(controllers_o == NULL){
-		controllers_o = malloc(strlen(str) + 1);
-		strcpy(controllers_o, str);
+	if(drivers_o == NULL){
+		drivers_o = malloc(strlen(str) + 1);
+		strcpy(drivers_o, str);
 	}else{
-		char* new = malloc(strlen(controllers_o) + 1 + strlen(str) + 1);
-		strcpy(new, controllers_o);
-		new[strlen(controllers_o)] = ' ';
-		strcpy(new + strlen(controllers_o) + 1, str);
-		free(controllers_o);
-		controllers_o = new;
+		char* new = malloc(strlen(drivers_o) + 1 + strlen(str) + 1);
+		strcpy(new, drivers_o);
+		new[strlen(drivers_o)] = ' ';
+		strcpy(new + strlen(drivers_o) + 1, str);
+		free(drivers_o);
+		drivers_o = new;
+	}
+	free(str);
+}
+void add_console(const char* name){
+	const char* path = "../dri/console/";
+	char* str = malloc(strlen(path) + strlen(name) + 2 + 1);
+	str[0] = 0;
+	strcat(str, path);
+	strcat(str, name);
+	strcat(str, ".c");
+	if(drivers == NULL){
+		drivers = malloc(strlen(str) + 1);
+		strcpy(drivers, str);
+	}else{
+		char* new = malloc(strlen(drivers) + 1 + strlen(str) + 1);
+		strcpy(new, drivers);
+		new[strlen(drivers)] = ' ';
+		strcpy(new + strlen(drivers) + 1, str);
+		free(drivers);
+		drivers = new;
+	}
+	free(str);
+	path = "dri/cons_";
+	str = malloc(strlen(path) + strlen(name) + 2 + 1);
+	str[0] = 0;
+	strcat(str, path);
+	strcat(str, name);
+	strcat(str, ".o");
+	if(drivers_o == NULL){
+		drivers_o = malloc(strlen(str) + 1);
+		strcpy(drivers_o, str);
+	}else{
+		char* new = malloc(strlen(drivers_o) + 1 + strlen(str) + 1);
+		strcpy(new, drivers_o);
+		new[strlen(drivers_o)] = ' ';
+		strcpy(new + strlen(drivers_o) + 1, str);
+		free(drivers_o);
+		drivers_o = new;
 	}
 	free(str);
 }

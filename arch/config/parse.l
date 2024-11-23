@@ -71,6 +71,10 @@ controller {
 	return CONTROLLER;
 }
 
+console {
+	return CONSOLE;
+}
+
 ([ \t]+) {
 	return SPACES;
 }

@@ -146,8 +146,8 @@ int main(int argc, char** argv){
 	fprintf(f, "mprt.iso: rootfs/mprt ../contrib/boot.cfg\n");
 	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
-	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld %s\n", controllers_o);
-	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o %s c/libc.a\n", controllers_o);
+	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld %s\n", drivers_o == NULL ? "" : drivers_o);
+	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o %s c/libc.a\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
 	fprintf(f, "../kern::\n");
@@ -159,9 +159,38 @@ int main(int argc, char** argv){
 	fprintf(f, "linker.ld: ../link/linker.ld\n");
 	fprintf(f, "	$(CPP) $(DEFINES) ../link/linker.ld > $@\n");
 	fprintf(f, "clean:\n");
-	fprintf(f, "	-rm -f mprt\n");
+	fprintf(f, "	-rm -f mprt %s\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "	$(MAKE) -C arch clean\n");
 	fprintf(f, "	$(MAKE) -C ../kern clean\n");
+	if(drivers != NULL){
+		while(1){
+			int i;
+			int brk = 0;
+			char* c;
+			char* o;
+			for(i = 0;; i++){
+				if(drivers[i] == ' ' || drivers[i] == 0){
+					if(drivers[i] == 0) brk = 1;
+					drivers[i] = 0;
+					c = drivers;
+					drivers += i + 1;
+					break;
+				}
+			}
+			for(i = 0;; i++){
+				if(drivers_o[i] == ' ' || drivers_o[i] == 0){
+					if(drivers_o[i] == 0) brk = 1;
+					drivers_o[i] = 0;
+					o = drivers_o;
+					drivers_o += i + 1;
+					break;
+				}
+			}
+			fprintf(f, "%s: %s\n", o, c);
+			fprintf(f, "	$(CC) $(CFLAGS) -c -o $@ %s\n", c);
+			if(brk) break;
+		}
+	}
 	fclose(f);
 
 	CREATE("arch/Makefile");
