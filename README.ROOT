@@ -1,1 +1,1 @@
-This is the root directory of MP/RT.
+This is the root directory of OS/RSMP.

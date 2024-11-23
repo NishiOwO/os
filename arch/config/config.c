@@ -142,11 +142,11 @@ int main(int argc, char** argv){
 	fprintf(f, "include config.mk\n");
 	fprintf(f, ".PHONY: all clean arch ../kern ../c\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
-	fprintf(f, "all: mprt.iso\n");
-	fprintf(f, "mprt.iso: rootfs/mprt ../contrib/boot.cfg\n");
+	fprintf(f, "all: osrsmp.iso\n");
+	fprintf(f, "osrsmp.iso: rootfs/kernel ../contrib/boot.cfg\n");
 	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
-	fprintf(f, "rootfs/mprt: arch ../kern ../c linker.ld %s drivers.o\n", drivers_o == NULL ? "" : drivers_o);
+	fprintf(f, "rootfs/kernel: arch ../kern ../c linker.ld %s drivers.o\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o %s drivers.o c/libc.a\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "arch::\n");
 	fprintf(f, "	$(MAKE) -C $@\n");
@@ -159,7 +159,7 @@ int main(int argc, char** argv){
 	fprintf(f, "linker.ld: ../link/linker.ld\n");
 	fprintf(f, "	$(CPP) $(DEFINES) ../link/linker.ld > $@\n");
 	fprintf(f, "clean:\n");
-	fprintf(f, "	-rm -f mprt %s drivers.o\n", drivers_o == NULL ? "" : drivers_o);
+	fprintf(f, "	-rm -f kernel *.iso %s drivers.o\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "	$(MAKE) -C arch clean\n");
 	fprintf(f, "	$(MAKE) -C ../kern clean\n");
 	fprintf(f, "drivers.o: drivers.c\n");
