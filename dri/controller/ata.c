@@ -36,8 +36,9 @@ void ata_select(int slave, int bus, int ctrl){
 	for(j = 0; j < 15; j++) inb(ctrl);
 }
 
-void ata_devctl(devctl_t devctl, void* userdata){
+int ata_devctl(devctl_t devctl, void* userdata){
 	struct ata_device* devptr = (struct ata_device*)userdata;
+	return 0;
 }
 
 void ata_probe(int bus, int ctrl){
