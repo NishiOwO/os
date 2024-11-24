@@ -34,6 +34,7 @@ void ata_probe(int bus, int ctrl){
 		char str[512];
 		int exists = 0;
 		int hdd = 0;
+		uint16_t buffer[256];
 		str[0] = 0;
 		strcat(str, bus == ATA_PRIMARY ? "Primary" : "Secondary");
 		strcat(str, " ");
@@ -61,7 +62,6 @@ no_poll:
 			if(status & 1){
 				strcat(str, "has error");
 			}else{
-				uint16_t buffer[256];
 				if(!(status & 8)) goto read_again;
 				for(j = 0; j < 256; j++) buffer[j] = inw(bus);
 				strcat(str, "exists");
