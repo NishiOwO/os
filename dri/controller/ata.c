@@ -14,6 +14,15 @@
 #define ATA_QUINARY		0x168
 #define ATA_QUINARY_CTRL	0x366
 
+struct ata_device {
+	bool configured;
+	int base;
+	int ctrl;
+	int lba;
+	int lba_mode;
+};
+struct ata_device ata_devices[4][2];
+
 void ata_reset(int base){
 	outb(base, 0x4);
 	while(inb(base) & 0x80);
@@ -38,6 +47,21 @@ void ata_probe(int bus, int ctrl){
 		int exists = 0;
 		int hdd = 0;
 		uint16_t buffer[256];
+		int ind = 0;
+		if(bus == ATA_PRIMARY){
+			ind = 0;
+		}else if(bus == ATA_SECONDARY){
+			ind = 1;
+		}else if(bus == ATA_TERTIARY){
+			ind = 2;
+		}else if(bus == ATA_QUINARY){
+			ind = 3;
+		}
+		ata_devices[ind][i].configured = false;
+		ata_devices[ind][i].base = bus;
+		ata_devices[ind][i].ctrl = ctrl;
+		ata_devices[ind][i].lba = 0;
+		ata_devices[ind][i].lba_mode = 28;
 		str[0] = 0;
 		strcat(str, bus == ATA_PRIMARY ? "Primary" : (bus == ATA_SECONDARY ? "Secondary" : (bus == ATA_TERTIARY ? "Tertialy" : "Quinary")));
 		strcat(str, " ");
@@ -71,6 +95,7 @@ no_poll:
 		}
 		kdebug(str);
 		if(exists){
+			ata_devices[ind][i].configured = true;
 			if(hdd){
 				uint32_t lba28;
 				uint64_t lba48;
@@ -82,6 +107,7 @@ no_poll:
 				memcpy(&lba28, buffer + 60, 32 / 8);
 				memcpy(&lba48, buffer + 100, 64 / 8);
 				lba = lba48 != 0 ? lba48 : lba28;
+				ata_devices[ind][i].lba = lba;
 				if(lba28 != 0){
 					kdebug("\tsupports LBA28");
 				}
@@ -89,6 +115,8 @@ no_poll:
 					kdebug("\tsupports LBA48");
 					if(lba48 < 0x10000000){
 						kdebug("\tbut does not need to use LBA48");
+					}else{
+						ata_devices[ind][i].lba_mode = 48;
 					}
 				}
 				numstr(sectors, lba);
