@@ -143,8 +143,8 @@ int main(int argc, char** argv){
 	fprintf(f, ".PHONY: all clean arch ../kern ../c\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
 	fprintf(f, "all: osrsmp.iso\n");
-	fprintf(f, "osrsmp.iso: rootfs/kernel ../contrib/boot.cfg\n");
-	fprintf(f, "	cp ../contrib/* ./rootfs/\n");
+	fprintf(f, "osrsmp.iso: rootfs/kernel ../contrib/boot/boot.cfg\n");
+	fprintf(f, "	cp ../contrib/boot/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
 	fprintf(f, "rootfs/kernel: arch ../kern ../c linker.ld %s drivers.o\n", drivers_o == NULL ? "" : drivers_o);
 	fprintf(f, "	$(LD) -Tlinker.ld $(LDFLAGS) -o $@ arch/*.o kern/*.o %s drivers.o c/libc.a\n", drivers_o == NULL ? "" : drivers_o);
