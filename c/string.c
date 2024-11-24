@@ -17,3 +17,17 @@ void strcpy(char* dest, const char* src){
 void strcat(char* dest, const char* src){
 	strcpy(dest + strlen(dest), src);
 }
+
+void numstr(char* dest, uint64_t num){
+	char buf[513];
+	int i;
+	buf[512] = 0;
+	for(i = 511; i >= 0; i--){
+		buf[i] = '0' + (num % 10);
+		num /= 10;
+		if(num == 0){
+			strcpy(dest, buf + i);
+			break;
+		}
+	}
+}

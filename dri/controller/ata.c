@@ -3,6 +3,7 @@
 #include <kern/debug.h>
 #include <arch/io.h>
 #include <c/string.h>
+#include <c/memory.h>
 
 #define ATA_PRIMARY		0x1f0
 #define ATA_PRIMARY_CTRL	0x3f6
@@ -72,6 +73,28 @@ no_poll:
 		kdebug(str);
 		if(exists){
 			if(hdd){
+				uint32_t lba28;
+				uint64_t lba48;
+				uint64_t lba;
+				char sectors[512];
+				char str[1024];
+				str[0] = 0;
+				memcpy(&lba28, buffer + 60, 32 / 8);
+				memcpy(&lba48, buffer + 100, 64 / 8);
+				lba = lba48 != 0 ? lba48 : lba28;
+				if(lba28 != 0){
+					kdebug("        supports LBA28");
+				}
+				if(lba48 != 0){
+					kdebug("        supports LBA48");
+					if(lba48 < 0x10000000){
+						kdebug("        but does not need to use LBA48");
+					}
+				}
+				numstr(sectors, lba);
+				strcat(str, "        ");
+				strcat(str, sectors);
+				strcat(str, " sectors");
 				kdebug("        is hard disk");
 			}else{
 				kdebug("        is not hard disk");
