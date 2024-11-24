@@ -9,6 +9,10 @@
 #define ATA_PRIMARY_CTRL	0x3f6
 #define ATA_SECONDARY		0x170
 #define ATA_SECONDARY_CTRL	0x376
+#define ATA_TERTIARY		0x1e8
+#define ATA_TERTIARY_CTRL	0x3e6
+#define ATA_QUINARY		0x168
+#define ATA_QUINARY_CTRL	0x366
 
 void ata_reset(int base){
 	outb(base, 0x4);
@@ -17,11 +21,9 @@ void ata_reset(int base){
 }
 
 void ata_select(int slave, int bus, int ctrl){
+	int j;
 	outb(bus + 6, 0xa0 | slave<<4);
-	inb(ctrl);
-	inb(ctrl);
-	inb(ctrl);
-	inb(ctrl);
+	for(j = 0; j < 15; j++) inb(ctrl);
 }
 
 void ata_probe(int bus, int ctrl){
@@ -37,15 +39,12 @@ void ata_probe(int bus, int ctrl){
 		int hdd = 0;
 		uint16_t buffer[256];
 		str[0] = 0;
-		strcat(str, bus == ATA_PRIMARY ? "Primary" : "Secondary");
+		strcat(str, bus == ATA_PRIMARY ? "Primary" : (bus == ATA_SECONDARY ? "Secondary" : (bus == ATA_TERTIARY ? "Tertialy" : "Quinary")));
 		strcat(str, " ");
 		strcat(str, list[i]);
 		strcat(str, " ");
 		outb(bus + 6, i == 0 ? 0xa0 : 0xb0);
-		inb(ctrl);
-		inb(ctrl);
-		inb(ctrl);
-		inb(ctrl);
+		for(j = 0; j < 15; j++) inb(ctrl);
 		for(j = 2; j <= 5; j++) outb(bus + j, 0);
 		outb(bus + 7, 0xec);
 		if(inb(bus + 7) == 0){
@@ -77,27 +76,33 @@ no_poll:
 				uint64_t lba48;
 				uint64_t lba;
 				char sectors[512];
+				char bytes[512];
 				char str[1024];
 				str[0] = 0;
 				memcpy(&lba28, buffer + 60, 32 / 8);
 				memcpy(&lba48, buffer + 100, 64 / 8);
 				lba = lba48 != 0 ? lba48 : lba28;
 				if(lba28 != 0){
-					kdebug("        supports LBA28");
+					kdebug("\tsupports LBA28");
 				}
 				if(lba48 != 0){
-					kdebug("        supports LBA48");
+					kdebug("\tsupports LBA48");
 					if(lba48 < 0x10000000){
-						kdebug("        but does not need to use LBA48");
+						kdebug("\tbut does not need to use LBA48");
 					}
 				}
 				numstr(sectors, lba);
-				strcat(str, "        ");
+				numstr(bytes, lba * 512);
+				strcat(str, "\t");
 				strcat(str, sectors);
 				strcat(str, " sectors");
-				kdebug("        is hard disk");
+				strcat(str, " / ");
+				strcat(str, bytes);
+				strcat(str, " bytes");
+				kdebug(str);
+				kdebug("\tis hard disk");
 			}else{
-				kdebug("        is not hard disk");
+				kdebug("\tis not hard disk");
 			}
 		}
 	}
@@ -106,6 +111,8 @@ no_poll:
 void ata_init(void){
 	bool pri = false;
 	bool sec = false;
+	bool ter = false;
+	bool qui = false;
 	if(inb(ATA_PRIMARY + 7) == 0xff){
 		kdebug("ATA primary bus does not exist");
 	}else{
@@ -122,10 +129,28 @@ void ata_init(void){
 		sec = true;
 	}
 
-	if(pri || sec){
+	if(inb(ATA_TERTIARY + 7) == 0xff){
+		kdebug("ATA tertiary bus does not exist");
+	}else{
+		ata_reset(ATA_TERTIARY_CTRL);
+		kdebug("ATA tertiary bus ready");
+		ter = true;
+	}
+
+	if(inb(ATA_QUINARY + 7) == 0xff){
+		kdebug("ATA quinary bus does not exist");
+	}else{
+		ata_reset(ATA_QUINARY_CTRL);
+		kdebug("ATA quinary bus ready");
+		qui = true;
+	}
+
+	if(pri || sec || ter || qui){
 		kdebug("Probing for ATA drives");
 		if(pri) ata_probe(ATA_PRIMARY, ATA_PRIMARY_CTRL);
 		if(sec) ata_probe(ATA_SECONDARY, ATA_SECONDARY_CTRL);
+		if(ter) ata_probe(ATA_TERTIARY, ATA_TERTIARY_CTRL);
+		if(qui) ata_probe(ATA_QUINARY, ATA_QUINARY_CTRL);
 	}else{
 		kdebug("No ATA bus detected");
 	}

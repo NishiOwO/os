@@ -18,6 +18,17 @@ void vga_putchar(char c){
 		vga_x = 0;
 	}else if(c == '\n'){
 		vga_y++;
+	}else if(c == '\t'){
+		int i;
+		for(i = 0; i < 8; i++){
+			*vram++ = ' ';
+			*vram++ = vga_color;
+		}
+		vga_x += 8;
+		if(vga_x == 80){
+			vga_x = 0;
+			vga_y++;
+		}
 	}else{
 		*vram++ = c;
 		*vram++ = vga_color;
