@@ -1,6 +1,7 @@
 /* $Id$ */
 
 #include <kern/debug.h>
+#include <kern/device.h>
 #include <arch/io.h>
 #include <c/string.h>
 #include <c/memory.h>
@@ -33,6 +34,10 @@ void ata_select(int slave, int bus, int ctrl){
 	int j;
 	outb(bus + 6, 0xa0 | slave<<4);
 	for(j = 0; j < 15; j++) inb(ctrl);
+}
+
+void ata_devctl(devctl_t devctl, void* userdata){
+	struct ata_device* devptr = (struct ata_device*)userdata;
 }
 
 void ata_probe(int bus, int ctrl){
@@ -95,6 +100,15 @@ no_poll:
 		}
 		kdebug(str);
 		if(exists){
+			char cbuf[2];
+			char devstr[5];
+			cbuf[1] = 0;
+			devstr[0] = 0;
+			strcat(devstr, "DI");
+			cbuf[0] = 'A' + ind;
+			strcat(devstr, cbuf);
+			cbuf[0] = '0' + i;
+			strcat(devstr, cbuf);
 			ata_devices[ind][i].configured = true;
 			if(hdd){
 				uint32_t lba28;
@@ -132,6 +146,7 @@ no_poll:
 			}else{
 				kdebug("\tis not hard disk");
 			}
+			register_device(devstr, ata_devctl, &ata_devices[ind][i]);
 		}
 	}
 }

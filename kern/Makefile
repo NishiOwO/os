@@ -5,7 +5,10 @@ include ../build/config.mk
 .PHONY: all
 .SUFFIXES: .c .o
 
-all: $(BUILDDIR)/kern/init.o $(BUILDDIR)/kern/memory.o $(BUILDDIR)/kern/debug.o $(BUILDDIR)/kern/print.o
+all: $(BUILDDIR)/kern/init.o $(BUILDDIR)/kern/device.o $(BUILDDIR)/kern/memory.o $(BUILDDIR)/kern/debug.o $(BUILDDIR)/kern/print.o
+
+$(BUILDDIR)/kern/device.o: device.c
+	$(CC) $(CFLAGS) -c -o $@ device.c
 
 $(BUILDDIR)/kern/init.o: init.c
 	$(CC) $(CFLAGS) -c -o $@ init.c
