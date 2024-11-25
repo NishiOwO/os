@@ -13,6 +13,16 @@ struct devctl_entry {
 struct devctl_entry devctl_list[128];
 int devctl_list_index = 0;
 
+int devctl(const char* devname, devctl_t dev){
+	int i;
+	for(i = 0; i < devctl_list_index; i++){
+		if(strequ(devctl_list[i].name, devname)){
+			return devctl_list[i].handler(dev, devctl_list[i].userdata);
+		}
+	}
+	return -1;
+}
+
 void register_device(const char* name, devctl_handler handler, void* userdata){
 	char buf[512];
 	buf[0] = 0;

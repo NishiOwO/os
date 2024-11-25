@@ -9,6 +9,15 @@ int strlen(const char* str){
 	return i;
 }
 
+bool strequ(const char* str1, const char* str2){
+	int i;
+	if(strlen(str1) != strlen(str2)) return false;
+	for(i = 0; str1[i] != 0; i++){
+		if(str1[i] != str2[i]) return false;
+	}
+	return true;
+}
+
 void strcpy(char* dest, const char* src){
 	memcpy(dest, src, strlen(src));
 	dest[strlen(src)] = 0;
