@@ -61,5 +61,5 @@ void init_kernel(unsigned long magic, unsigned long addr){
 	setup_memory();
 	kdebug("Calling kernel main");
 	kernel_main(argc, (char**)argv);
-	while(1);
+	kdebug("Kernel exited, system halted");
 }

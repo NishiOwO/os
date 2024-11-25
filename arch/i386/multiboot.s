@@ -13,6 +13,7 @@
 .section .data
 	seax: .long 0
 	sebx: .long 0
+	halted:	.ascii "System halted\0"
 
 .section .bss
 	.align 16
@@ -23,6 +24,7 @@
 .section .text
 .global _start
 .extern init_kernel
+.extern kdebug
 _start:
 	mov %eax, seax
 	mov %ebx, sebx
@@ -32,4 +34,5 @@ _start:
 	push %ebx
 	push %eax
 	call init_kernel
+	jmp .
 .end:
