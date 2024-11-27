@@ -90,6 +90,11 @@ int main(int argc, char** argv){
 		}
 		chdir("..");
 	}
+	if(cc == NULL) cc = getenv("CC");
+	if(as == NULL) as = getenv("AS");
+	if(ld == NULL) ld = getenv("LD");
+	if(ar == NULL) ar = getenv("AR");
+	if(cpp == NULL) cpp = getenv("CPP");
 	if(cc == NULL){
 		fprintf(stderr, "failed to probe C compiler\n");
 		return 1;
@@ -106,10 +111,15 @@ int main(int argc, char** argv){
 		fprintf(stderr, "failed to probe archiver\n");
 		return 1;
 	}
+	if(cpp == NULL){
+		fprintf(stderr, "failed to probe preprocessor\n");
+		return 1;
+	}
 	printf("C compiler: %s\n", cc);
 	printf("assembler: %s\n", as);
 	printf("linker: %s\n", ld);
 	printf("archiver: %s\n", ar);
+	printf("preprocessor: %s\n", cpp);
 	printf("DEFINES: %s\n", defines == NULL ? "" : defines);
 	printf("CFLAGS: %s\n", cflags == NULL ? "" : cflags);
 	printf("ASFLAGS: %s\n", asflags == NULL ? "" : asflags);
