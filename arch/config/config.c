@@ -152,11 +152,11 @@ int main(int argc, char** argv){
 	fprintf(f, "include config.mk\n");
 	fprintf(f, ".PHONY: all clean arch ../kern ../c\n");
 	fprintf(f, ".SUFFIXES: .c .s .o\n");
-	fprintf(f, "all: osrsmp$(BOOTLOADER).iso\n");
-	fprintf(f, "osrsmp.iso: rootfs/kernel ../contrib/boot/boot.cfg\n");
+	fprintf(f, "all: iskra$(BOOTLOADER).iso\n");
+	fprintf(f, "iskra.iso: rootfs/kernel ../contrib/boot/boot.cfg\n");
 	fprintf(f, "	cp ../contrib/boot/* ./rootfs/\n");
 	fprintf(f, "	mkisofs -R -o $@ -uid 0 -gid 0 -no-emul-boot -b cdboot rootfs\n");
-	fprintf(f, "osrsmp-grub.iso: rootfs/kernel ../contrib/grub/grub.cfg\n");
+	fprintf(f, "iskra-grub.iso: rootfs/kernel ../contrib/grub/grub.cfg\n");
 	fprintf(f, "	mkdir -p ./rootfs/boot/grub\n");
 	fprintf(f, "	cp ../contrib/grub/grub.cfg ./rootfs/boot/grub/\n");
 	fprintf(f, "	grub-mkrescue -o $@ ./rootfs\n");

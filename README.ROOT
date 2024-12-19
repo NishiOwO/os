@@ -1,5 +1,5 @@
-(This is the root directory of OS/RSMP)
+(This is the root directory of Iskra)
 
-OS/RSMP - The Homebrew OS project
+Iskra - The Homebrew OS project
 
-OS/RSMP stands for: Operating System/Resource-Sharing Multi-Platform
+Iskra stands for: Operating System/Resource-Sharing Multi-Platform
